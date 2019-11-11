@@ -156,6 +156,9 @@ class RPGCombatHelper{
 			else if($objAttacker->getEquippedWeapon()->getStatDamage() == 'Intelligence'){
 				$intDamage = round((((($objAttacker->getModifiedMagicDamage() + $intAttackerAdditionalDamageRoll) * $dblSkillModifier) * $intAttackerCritDamageModifier) - $objDefender->getModifiedMagicDefence()) * $intDefenderBlockedDamageModifier);	
 			}
+			else if($objAttacker->getEquippedWeapon()->getStatDamage() == 'Dexterity'){
+				$intDamage = round((((($objAttacker->getModifiedDamage() + $intAttackerAdditionalDamageRoll) * $dblSkillModifier) * $intAttackerCritDamageModifier) - $objDefender->getModifiedDefence()) * $intDefenderBlockedDamageModifier);	
+			}
 		}
 		return $intDamage;
 	}
