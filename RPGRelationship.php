@@ -88,8 +88,7 @@ class RPGRelationship extends RPGNPC {
 	public function save(){
 		$objDB = new Database();
 		$strSQL = "UPDATE tblnpcinstance
-					SET intLevel = " . $objDB->quote($this->_intLevel) . ",
-						dblWeight = " . $objDB->quote($this->_dblWeight) . ",
+					SET dblWeight = " . $objDB->quote($this->_dblWeight) . ",
 						intExperience = " . $objDB->quote($this->_intExperience) . ",
 						intRelationshipLevel = " . $objDB->quote($this->_intRelationshipLevel) . ",
 						intRelationshipEXP = " . $objDB->quote($this->_intRelationshipEXP) . ",
@@ -110,7 +109,7 @@ class RPGRelationship extends RPGNPC {
 					VALUES (" . $objDB->quote($intNPCID) . ", " . $objDB->quote($intRPGCharacterID) . ", " . $objDB->quote($this->getWeight()) . ", " . $objDB->quote(parent::getModifiedMaxHP()) . ", -1)";
 		$objDB->query($strSQL);
 		$strSQL = "INSERT INTO tblnpcinstancestats (intNPCID, intRPGCharacterID, intMaxHP, intStrength, intIntelligence, intAgility, intWillpower, intDexterity, intVitality, intAccuracy, intEvasion, intCritDamage, intPierce, intBlockRate, intBlockReduction, intMaxHunger)
-					VALUES (" . $objDB->quote($intNPCID) . ", " . $objDB->quote($intRPGCharacterID) . ", " . $objDB->quote($objStats->getCombinedStats('intMaxHP')) . ", " . $objDB->quote($objStats->getCombinedStats('intStrength')) . ", " . $objDB->quote($objStats->getCombinedStats('intIntelligence')) . ", " . $objDB->quote($objStats->getCombinedStats('intAgility')) . ", " . $objDB->quote($objStats->getCombinedStats('intWillpower')) . ", " . $objDB->quote($objStats->getCombinedStats('intDexterity')) . ", " . $objDB->quote($objStats->getCombinedStats('intVitality')) . ", " . $objDB->quote($objStats->getCombinedStats('intAccuracy')) . ", " . $objDB->quote($objStats->getCombinedStats('intEvasion')) . ", " . $objDB->quote($objStats->getCombinedStats('intCritDamage')) . ", " . $objDB->quote($objStats->getCombinedStats('intPierce')) . ", " . $objDB->quote($objStats->getCombinedStats('intBlockRate')) . ", " . $objDB->quote($objStats->getCombinedStats('intBlockReduction')) . ", 100)";
+					VALUES (" . $objDB->quote($intNPCID) . ", " . $objDB->quote($intRPGCharacterID) . ", " . $objDB->quote($objStats->getCombinedStats('intMaxHP')) . ", " . $objDB->quote($objStats->getCombinedStats('intStrength')) . ", " . $objDB->quote($objStats->getCombinedStats('intIntelligence')) . ", " . $objDB->quote($objStats->getCombinedStats('intAgility')) . ", " . $objDB->quote($objStats->getCombinedStats('intWillpower')) . ", " . $objDB->quote($objStats->getCombinedStats('intDexterity')) . ", " . $objDB->quote($objStats->getCombinedStats('intVitality')) . ", " . $objDB->quote($objStats->getCombinedStats('intAccuracy')) . ", " . $objDB->quote($objStats->getCombinedStats('intEvasion')) . ", " . $objDB->quote($objStats->getCombinedStats('intCritDamage')) . ", " . $objDB->quote($objStats->getCombinedStats('intPierce')) . ", " . $objDB->quote($objStats->getCombinedStats('intBlockRate')) . ", " . $objDB->quote($objStats->getCombinedStats('intBlockReduction')) . ", 1000)";
 		$objDB->query($strSQL);
 		$this->loadRelationshipInfo($intNPCID, $intRPGCharacterID);
 	}

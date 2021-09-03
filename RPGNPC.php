@@ -148,6 +148,7 @@ class RPGNPC{
 		$this->_objStats = new RPGNPCStats($intNPCID);
 		$this->_objStats->loadBaseStats();
 		$this->setCurrentHP($this->getModifiedMaxHP());
+		$this->setCurrentHunger(0);
 		$this->_arrStatusEffectList = array();
 	}
 	
@@ -206,7 +207,7 @@ class RPGNPC{
 	public function loadSkills(){
 		$objDB = new Database();
 		$this->_arrSkillList = array();
-		$strSQL = "SELECT intSkillID, strSkillType, intReqLevel
+		$strSQL = "SELECT intSkillID, strSkillType, strName, intReqLevel
 					FROM tblnpcskillxr
 						INNER JOIN tblskill
 							USING (intSkillID)
@@ -215,7 +216,7 @@ class RPGNPC{
 		while($arrRow = $rsResult->fetch(PDO::FETCH_ASSOC)){
 			$objRPGSkill = new RPGSkill($arrRow['intSkillID']);
 			$objRPGSkill->setRequiredLevel($arrRow['intReqLevel']);
-			$this->_arrSkillList[$arrRow['strSkillType']][] = $objRPGSkill;
+			$this->_arrSkillList[$arrRow['strSkillType']][$arrRow['strName']] = $objRPGSkill;
 		}
 	}
 	
@@ -531,7 +532,7 @@ class RPGNPC{
 	}
 	
 	public function getModifiedEvasion(){
-		return round(($this->_objStats->getCombinedStats('intAgility') * 2) + $this->_objStats->getCombinedStatsSecondary('intEvasion'));
+		return round($this->_objStats->getCombinedStats('intAgility') + $this->_objStats->getCombinedStatsSecondary('intEvasion'));
 	}
 	
 	public function getModifiedPierceRate(){
@@ -539,7 +540,7 @@ class RPGNPC{
 	}
 	
 	public function getModifiedAccuracy(){
-		return round(($this->_objStats->getCombinedStats('intDexterity') * 2) + $this->_objStats->getCombinedStatsSecondary('intAccuracy'));
+		return round($this->_objStats->getCombinedStats('intDexterity') + $this->_objStats->getCombinedStatsSecondary('intAccuracy'));
 	}
 	
 	public function getWaitTime($udfWaitType){
@@ -791,7 +792,11 @@ class RPGNPC{
 	}
 	
 	public function getActiveSkillList($strSkillType){
-		return $this->_arrActiveSkillList[$strSkillType];
+		return (array_key_exists($strSkillType, $this->_arrActiveSkillList) ? $this->_arrActiveSkillList[$strSkillType] : false);
+	}
+	
+	public function getActiveSkill($strSkillType, $strSkillName){
+		return $this->_arrActiveSkillList[$strSkillType][$strSkillName];
 	}
 	
 	public function getLastRoll(){
@@ -875,7 +880,7 @@ class RPGNPC{
 	}
 	
 	public function gainExperience($intExpGain){
-		if($this->getLevel() != 20){
+		if($this->getLevel() != 80){
 			$this->_intExperience += $intExpGain;
 		}
 		if($this->_intExperience >= $this->_intRequiredExperience){
@@ -896,6 +901,19 @@ class RPGNPC{
 	
 	public function loadRequiredExperience(){
 		return pow(($this->_intLevel + 1) * 2, 2) * 100;
+	}
+	
+	public function forceEatItemDeadly($intItemID){
+		$objItem = new RPGItem($intItemID);
+		$this->healHP($objItem->getHPHeal());
+		$this->_intWeight += round($objItem->getCalories() / 3500);
+		if($this->_intCurrentHunger + $objItem->getFullness() >= $this->getStats()->getCombinedStatsSecondary('intMaxHunger') * 2){
+			$this->setCurrentHP(0);
+			$this->_intCurrentHunger = 0;
+		}
+		else{
+			$this->_intCurrentHunger = $this->_intCurrentHunger + $objItem->getFullness();
+		}
 	}
 	
 	public function forceEatItem($intItemID){
@@ -925,7 +943,13 @@ class RPGNPC{
 	}
 	
 	public function stuffCharacterDeadly($intFullness, $intWeight){
-		$this->setCurrentHunger(min(($this->getStats()->getCombinedStatsSecondary('intMaxHunger') * 2), $this->getCurrentHunger() + $intFullness));
+		if($this->_intCurrentHunger + $intFullness >= $this->getStats()->getCombinedStatsSecondary('intMaxHunger') * 2){
+			$this->setCurrentHP(0);
+			$this->_intCurrentHunger = 0;
+		}
+		else{
+			$this->_intCurrentHunger = $this->_intCurrentHunger + $intFullness;
+		}
 		$this->setWeight($this->getWeight() + $intWeight);
 	}
 	
@@ -935,6 +959,10 @@ class RPGNPC{
 	
 	public function setPartyMemberID($intPartyMemberID){
 		$this->_intPartyMemberID = $intPartyMemberID;
+	}
+	
+	public function tickHunger(){
+		$this->_intCurrentHunger = max(0, $this->_intCurrentHunger - $this->_intHungerRate);
 	}
 }
 

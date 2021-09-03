@@ -35,7 +35,7 @@
 		public function loadBaseStats(){
 			$this->_arrBaseStats = array();
 			$objDB = new Database();
-			$strSQL = "SELECT intMaxHP, intStrength, intIntelligence, intAgility, intVitality, intWillpower, intDexterity, intAccuracy, intEvasion, intCritDamage, intPierce, intBlockRate, intBlockReduction, intFleeResistance
+			$strSQL = "SELECT intMaxHP, intStrength, intIntelligence, intAgility, intVitality, intWillpower, intDexterity, intAccuracy, intEvasion, intCritDamage, intPierce, intBlockRate, intBlockReduction, intFleeResistance, intMaxHunger
 						FROM tblnpcstats
 							WHERE intNPCID = " . $objDB->quote($this->_intNPCID);
 			$rsResult = $objDB->query($strSQL);
@@ -54,7 +54,7 @@
 				$this->_arrBaseStats['intBlockRate'] = $arrRow['intBlockRate'];
 				$this->_arrBaseStats['intBlockReduction'] = $arrRow['intBlockReduction'];
 				$this->_arrBaseStats['intFleeResistance'] = $arrRow['intFleeResistance'];
-				$this->_arrBaseStats['intMaxHunger'] = 100;
+				$this->_arrBaseStats['intMaxHunger'] = $arrRow['intMaxHunger'];
 			}
 		}
 		
@@ -161,8 +161,8 @@
 		public function getCombinedStats($strIndex){
 			
 			$intSEStatTotal = 0;
-			foreach($this->_arrStatusEffectStats[$strIndex] as $key => $intStrVal){
-				$intSEStatTotal += $intStrVal;
+			foreach($this->_arrStatusEffectStats[$strIndex] as $key => $intStatVal){
+				$intSEStatTotal += $intStatVal;
 			}
 			
 			return $this->_arrBaseStats[$strIndex] + $intSEStatTotal;
@@ -173,7 +173,12 @@
 		}
 		
 		public function getCombinedStatsSecondary($strIndex){
-			return $this->_arrBaseStats[$strIndex];
+			$intSEStatTotal = 0;
+			foreach($this->_arrStatusEffectStats[$strIndex] as $key => $intStatVal){
+				$intSEStatTotal += $intStatVal;
+			}
+			
+			return $this->_arrBaseStats[$strIndex] + $intSEStatTotal;
 		}
 		
 		public function setRPGCharacterID($intRPGCharacterID){

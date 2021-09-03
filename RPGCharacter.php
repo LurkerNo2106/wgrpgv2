@@ -1647,7 +1647,7 @@ class RPGCharacter{
 	}
 	
 	public function gainExperience($intExpGain){
-		if($this->getLevel() != 20){
+		if($this->getLevel() != 80){
 			$this->_intExperience += $intExpGain;
 		}
 		if($this->_intExperience >= $this->_intRequiredExperience){
@@ -1764,7 +1764,7 @@ class RPGCharacter{
 	}
 	
 	public function getModifiedEvasion(){
-		return round(($this->_objStats->getCombinedStats('intAgility') * 2) + $this->_objStats->getCombinedStatsSecondary('intEvasion'));
+		return round($this->_objStats->getCombinedStats('intAgility') + $this->_objStats->getCombinedStatsSecondary('intEvasion'));
 	}
 	
 	public function getModifiedPierceRate(){
@@ -1772,7 +1772,7 @@ class RPGCharacter{
 	}
 	
 	public function getModifiedAccuracy(){
-		return round(($this->_objStats->getCombinedStats('intDexterity') * 2) + $this->_objStats->getCombinedStatsSecondary('intAccuracy'));
+		return round($this->_objStats->getCombinedStats('intDexterity') + $this->_objStats->getCombinedStatsSecondary('intAccuracy'));
 	}
 	
 	public function getImmobilityFactor(){
@@ -1896,7 +1896,7 @@ class RPGCharacter{
 	}
 	
 	public function ascendFloor(){
-		if($this->getCurrentFloor()->getFloorID() != 3){
+		if($this->getCurrentFloor()->getFloorID() != 4){
 			global $arrStateValues;
 			unset($_SESSION['objEnemy']);
 			unset($_SESSION['objRelationship']);
@@ -1919,7 +1919,7 @@ class RPGCharacter{
 	}
 	
 	public function increaseFloor(){
-		if($this->getCurrentFloor()->getFloorID() != 3){
+		if($this->getCurrentFloor()->getFloorID() != 4){
 			unset($_SESSION['objEnemy']);
 			unset($_SESSION['objRelationship']);
 			$intPreviousFloor = $this->getCurrentFloor()->getFloorID();
@@ -1960,8 +1960,12 @@ class RPGCharacter{
 		}
 	}
 	
-	public function addReservePartyMember($intNPCID){
+	public function addReservePartyMember($intNPCID, $intLevel = 1){
 		$objNPC = new RPGNPC($intNPCID, $this->_intRPGCharacterID);
+		if($intLevel > 1){
+			$objNPC->setLevel($intLevel);
+			$objNPC->save();
+		}
 		$this->getPartyMembers()->addReservePartyMember($objNPC);
 		$this->getPartyMembers()->save();
 	}
@@ -1976,6 +1980,10 @@ class RPGCharacter{
 	
 	public function getCurrentFloor(){
 		return $this->_objCurrentFloor;
+	}
+	
+	public function getCurrentFloorID(){
+		return $this->_objCurrentFloor->getFloorID();
 	}
 	
 	public function setCurrentFloor($intCurrentFloorID){
